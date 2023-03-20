@@ -8,7 +8,6 @@ namespace CSChess
     {
         static void Main(string[] args)
         {
-
             ChessBoard board = new();
             board.InsertPiece(new King(Color.Black, board), new Position(0, 3));
             board.InsertPiece(new Queen(Color.Black, board), new Position(0, 4));
@@ -41,6 +40,10 @@ namespace CSChess
             }
 
             Screen.PrintBoard(board);
+
+            ChessPosition cpos = new('b', 3);
+            Console.WriteLine(cpos.ToPosition());
+            Console.WriteLine('d' - 'a');
         }
     }
 }

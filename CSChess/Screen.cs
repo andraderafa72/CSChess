@@ -9,7 +9,7 @@ namespace CSChess
         {
             for (int i = 0; i < 8; i++)
             {
-                Console.Write((i + 1) + "|");
+                Console.Write((8 - i) + "|");
                 for (int j = 0; j < 8; j++)
                 {
                     Piece piece = board.GetPieceByPosition(i, j);
