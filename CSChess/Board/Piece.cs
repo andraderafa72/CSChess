@@ -17,5 +17,9 @@ namespace CSChess.Board
             Board = board;
             QttMoves = 0;
         }
+
+        public void IncrementMoves() {
+            QttMoves++;
+        }
     }
 }

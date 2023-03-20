@@ -44,6 +44,17 @@ namespace CSChess.Board
             piece.Position = pos;
         }
 
+        public Piece RemovePieceByPosition(Position pos)
+        {
+            Piece piece = GetPieceByPosition(pos);
+            if (piece == null) return null;
+
+            piece.Position = null;
+            Pieces[pos.line, pos.column] = null;
+
+            return piece;
+        }
+
         public bool IsPositionValid(Position pos)
         {
             return pos.line <= 8 && pos.column <= 8 && pos.column >= 0 && pos.line >= 0;

@@ -16,19 +16,7 @@ namespace CSChess
 
                     if (piece != null)
                     {
-                        if (piece.Color == Color.White)
-                        {
-                            Console.BackgroundColor = ConsoleColor.White;
-                            Console.ForegroundColor = ConsoleColor.Black;
-                        }
-                        else
-                        {
-                            Console.BackgroundColor = ConsoleColor.Black;
-                            Console.ForegroundColor = ConsoleColor.White;
-                        }
-
-                        Console.Write($" {piece} ");
-                        Console.ResetColor();
+                        PrintPiece(piece);
                     }
                     else
                     {
@@ -39,6 +27,21 @@ namespace CSChess
             }
             Console.WriteLine("   ______________________");
             Console.WriteLine("   a  b  c  d  e  f  g  h ");
+        }
+
+        public static void PrintPiece(Piece piece)
+        {
+            if (piece.Color == Color.Black) Console.ForegroundColor = ConsoleColor.Red;
+            Console.Write($" {piece} ");
+            Console.ResetColor();
+        }
+
+        public static Position ReadChessPosition()
+        {
+            string s = Console.ReadLine();
+            int line = int.Parse(s[1] + "");
+            char column = s[0];
+            return (new ChessPosition(column, line)).ToPosition();
         }
     }
 }
