@@ -61,10 +61,10 @@ namespace CSChess.Match
         {
             // Black pieces
             InsertNewPiece('a', 8, new Rook(Color.Black, MatchBoard));
-            InsertNewPiece('b', 8, new Knight(Color.Black, MatchBoard));
-            InsertNewPiece('c', 8, new Bishop(Color.Black, MatchBoard));
-            InsertNewPiece('d', 8, new King(Color.Black, MatchBoard));
-            InsertNewPiece('e', 8, new Queen(Color.Black, MatchBoard));
+            //InsertNewPiece('b', 8, new Knight(Color.Black, MatchBoard));
+            //InsertNewPiece('c', 8, new Bishop(Color.Black, MatchBoard));
+            //InsertNewPiece('d', 8, new Queen(Color.Black, MatchBoard));
+            InsertNewPiece('e', 8, new King(Color.Black, MatchBoard, this));
             InsertNewPiece('f', 8, new Bishop(Color.Black, MatchBoard));
             InsertNewPiece('g', 8, new Knight(Color.Black, MatchBoard));
             InsertNewPiece('h', 8, new Rook(Color.Black, MatchBoard));
@@ -78,10 +78,10 @@ namespace CSChess.Match
             InsertNewPiece('a', 1, new Rook(Color.White, MatchBoard));
             InsertNewPiece('b', 1, new Knight(Color.White, MatchBoard));
             InsertNewPiece('c', 1, new Bishop(Color.White, MatchBoard));
-            InsertNewPiece('d', 1, new King(Color.White, MatchBoard));
-            InsertNewPiece('e', 1, new Queen(Color.White, MatchBoard));
-            InsertNewPiece('f', 1, new Bishop(Color.White, MatchBoard));
-            InsertNewPiece('g', 1, new Knight(Color.White, MatchBoard));
+            InsertNewPiece('d', 1, new Queen(Color.White, MatchBoard));
+            InsertNewPiece('e', 1, new King(Color.White, MatchBoard, this));
+            //InsertNewPiece('f', 1, new Bishop(Color.White, MatchBoard));
+            //InsertNewPiece('g', 1, new Knight(Color.White, MatchBoard));
             InsertNewPiece('h', 1, new Rook(Color.White, MatchBoard));
 
             for (int i = 0; i < 8; i++)
@@ -101,6 +101,25 @@ namespace CSChess.Match
 
             MatchBoard.InsertPiece(piece, destiny);
 
+            // Castle Kingside
+            if(piece is King && destiny.column == origin.column + 2) {
+                Position rookOrigin = new Position(origin.line, origin.column + 3);
+                Position rookDestiny = new Position(origin.line, origin.column + 1);
+                Piece rook = MatchBoard.RemovePieceByPosition(rookOrigin);
+
+                rook.IncrementMoves();
+                MatchBoard.InsertPiece(rook, rookDestiny);
+            }
+
+            // Castle Queenside
+            if (piece is King && destiny.column == origin.column - 2)
+            {
+                Position rookOrigin = new Position(origin.line, origin.column - 4);
+                Position rookDestiny = new Position(origin.line, origin.column - 1);
+                Piece rook = MatchBoard.RemovePieceByPosition(rookOrigin);
+                rook.IncrementMoves();
+                MatchBoard.InsertPiece(rook, rookDestiny);
+            }
 
             return capturedPiece;
         }
@@ -114,6 +133,26 @@ namespace CSChess.Match
                 MatchBoard.InsertPiece(capturedPiece, destiny);
                 CapturedPieces.Remove(capturedPiece);
             }
+
+            // Castle Kingside
+            if (p is King && destiny.column == origin.column + 2) {
+                Position rookOrigin = new Position(origin.line, origin.column + 3);
+                Position rookDestiny = new Position(origin.line, origin.column + 1);
+                Piece rook = MatchBoard.RemovePieceByPosition(rookDestiny);
+                rook.DecrementMoves();
+                MatchBoard.InsertPiece(rook, rookOrigin);
+            }
+
+            // Castle Queenside
+            if (p is King && destiny.column == origin.column - 2)
+            {
+                Position rookOrigin = new Position(origin.line, origin.column - 4);
+                Position rookDestiny = new Position(origin.line, origin.column - 1);
+                Piece rook = MatchBoard.RemovePieceByPosition(rookOrigin);
+                rook.IncrementMoves();
+                MatchBoard.InsertPiece(rook, rookDestiny);
+            }
+
             p.DecrementMoves();
         }
 
@@ -171,8 +210,8 @@ namespace CSChess.Match
 
         public bool IsPlayerOnCheck(Color color)
         {
-            Piece king = King(color) ?? throw new BoardException("Where's the King???");
 
+            Piece king = King(color) ?? throw new BoardException("Where's the King???");
             foreach (Piece piece in GetInGamePieces(Opponent(color)))
             {
                 bool[,] mat = piece.AvailableMoves();
