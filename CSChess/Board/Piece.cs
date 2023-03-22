@@ -21,6 +21,11 @@ namespace CSChess.Board
         public void IncrementMoves() {
             QttMoves++;
         }
+        public void DecrementMoves()
+        {
+            QttMoves--;
+        }
+
 
         protected virtual bool CanMove(Position pos)
         {

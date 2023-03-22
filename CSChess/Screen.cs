@@ -1,5 +1,6 @@
 ﻿using CSChess.Board;
 using CSChess.Board.Enums;
+using CSChess.Match;
 
 namespace CSChess
 {
@@ -47,7 +48,7 @@ namespace CSChess
 
         public static void PrintPiece(Piece piece)
         {
-            if (piece.Color == Color.Black) Console.ForegroundColor = ConsoleColor.Red;
+            if (piece.Color == Color.Black) Console.ForegroundColor = ConsoleColor.DarkYellow;
             Console.Write($" {piece} ");
             Console.ResetColor();
         }
@@ -57,7 +58,7 @@ namespace CSChess
             if (canMove) Console.BackgroundColor = ConsoleColor.DarkGray;
             if (piece != null)
             {
-                if (piece.Color == Color.Black) Console.ForegroundColor = ConsoleColor.Red;
+                if (piece.Color == Color.Black) Console.ForegroundColor = ConsoleColor.DarkYellow;
                 Console.Write($" {piece} ");
             }
             else
@@ -73,9 +74,61 @@ namespace CSChess
             char column = s[0];
             int line = int.Parse(s[1] + "");
             Position p = (new ChessPosition(column, line)).ToPosition();
-            Console.WriteLine(p);
-
             return p;
+        }
+
+        public static void PrintMatch(ChessMatch match)
+        {
+            PrintBoard(match.MatchBoard);
+            Console.WriteLine();
+            Console.WriteLine($"Turn: {match.Turn}");
+            Console.WriteLine($"Player: {match.CurrentPlayer}");
+            Console.WriteLine("---------------");
+            PrintCapturedPieces(match);
+            Console.WriteLine();
+            Console.WriteLine("---------------");
+            if (!match.IsFinished)
+            {
+            if (match.IsCheck) Console.WriteLine("You're in CHECK");
+            }else
+            {
+                Console.WriteLine("CHECKMATE");
+                Console.WriteLine($"Winner: {match.CurrentPlayer}");
+            }
+        }
+
+        public static void PrintMatch(ChessMatch match, bool[,] availableMoves)
+        {
+            PrintBoard(match.MatchBoard, availableMoves);
+            PrintCapturedPieces(match);
+            Console.WriteLine();
+        }
+
+        public static void PrintCapturedPieces(ChessMatch match)
+        {
+            Console.BackgroundColor = ConsoleColor.White;
+            Console.ForegroundColor = ConsoleColor.Black;
+            Console.WriteLine(" Peças capturadas");
+            Console.ResetColor();
+            Console.Write(" Brancas: ");
+            PrintSet(match.GetCapturedPieces(Color.White));
+
+            Console.WriteLine();
+
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
+            Console.Write(" Pretas: ");
+            PrintSet(match.GetCapturedPieces(Color.Black));
+            Console.ResetColor();
+        }
+
+        public static void PrintSet(HashSet<Piece> pieces)
+        {
+            Console.Write("[");
+            foreach (Piece piece in pieces)
+            {
+                Console.Write(" " + piece + ", ");
+            }
+            Console.Write("]");
         }
     }
 }

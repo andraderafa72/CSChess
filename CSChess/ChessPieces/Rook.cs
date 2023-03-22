@@ -21,7 +21,7 @@ namespace CSChess.ChessPieces
             Position pos = new Position(0, 0);
 
             // Move Up
-            pos.UpdatePosition(Position.line, Position.column - 1);
+            pos.UpdatePosition(Position.line - 1, Position.column);
             while (Board.IsPositionValid(pos) && CanMove(pos))
             {
                 mat[pos.line, pos.column] = true;
@@ -31,7 +31,7 @@ namespace CSChess.ChessPieces
             }
 
             // Move Down
-            pos.UpdatePosition(Position.line, Position.column + 1);
+            pos.UpdatePosition(Position.line + 1, Position.column);
             while (Board.IsPositionValid(pos) && CanMove(pos))
             {
                 mat[pos.line, pos.column] = true;
@@ -41,7 +41,7 @@ namespace CSChess.ChessPieces
             }
 
             // Move Left
-            pos.UpdatePosition(Position.line - 1, Position.column);
+            pos.UpdatePosition(Position.line, Position.column - 1);
             while (Board.IsPositionValid(pos) && CanMove(pos))
             {
                 mat[pos.line, pos.column] = true;
@@ -51,7 +51,7 @@ namespace CSChess.ChessPieces
             }
 
             // Move Right
-            pos.UpdatePosition(Position.line + 1, Position.column);
+            pos.UpdatePosition(Position.line, Position.column + 1);
             while (Board.IsPositionValid(pos) && CanMove(pos))
             {
                 mat[pos.line, pos.column] = true;

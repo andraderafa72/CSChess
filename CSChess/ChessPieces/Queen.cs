@@ -21,7 +21,7 @@ namespace CSChess.ChessPieces
             Position pos = new Position(0, 0);
 
             // Move Up
-            pos.UpdatePosition(Position.line, Position.column - 1);
+            pos.UpdatePosition(Position.line - 1, Position.column);
             bool HasPieceFoward = false;
             while (Board.IsPositionValid(pos) && CanMove(pos))
             {
@@ -32,7 +32,7 @@ namespace CSChess.ChessPieces
             }
 
             // Move Down
-            pos.UpdatePosition(Position.line, Position.column + 1);
+            pos.UpdatePosition(Position.line + 1, Position.column);
             while (Board.IsPositionValid(pos) && CanMove(pos))
             {
                 mat[pos.line, pos.column] = true;
@@ -42,7 +42,7 @@ namespace CSChess.ChessPieces
             }
 
             // Move Left
-            pos.UpdatePosition(Position.line - 1, Position.column);
+            pos.UpdatePosition(Position.line, Position.column - 1);
             while (Board.IsPositionValid(pos) && CanMove(pos))
             {
                 mat[pos.line, pos.column] = true;
@@ -52,7 +52,7 @@ namespace CSChess.ChessPieces
             }
 
             // Move Right
-            pos.UpdatePosition(Position.line + 1, Position.column);
+            pos.UpdatePosition(Position.line, Position.column + 1);
             while (Board.IsPositionValid(pos) && CanMove(pos))
             {
                 mat[pos.line, pos.column] = true;
@@ -72,7 +72,7 @@ namespace CSChess.ChessPieces
             }
 
             // Move Down-Left
-            pos.UpdatePosition(Position.line, Position.column + 1);
+            pos.UpdatePosition(Position.line + 1, Position.column - 1);
             while (Board.IsPositionValid(pos) && CanMove(pos))
             {
                 mat[pos.line, pos.column] = true;
@@ -81,17 +81,17 @@ namespace CSChess.ChessPieces
                 pos.UpdatePosition(pos.line + 1, pos.column - 1);
             }
             // Move Up-Right
-            pos.UpdatePosition(Position.line - 1, Position.column - 1);
+            pos.UpdatePosition(Position.line - 1, Position.column + 1);
             while (Board.IsPositionValid(pos) && CanMove(pos))
             {
                 mat[pos.line, pos.column] = true;
                 Piece p = Board.GetPieceByPosition(pos);
                 if (p != null && p.Color != Color) break;
-                pos.UpdatePosition(pos.line + 1, pos.column - 1);
+                pos.UpdatePosition(pos.line - 1, pos.column + 1);
             }
 
             // Move Down-Right
-            pos.UpdatePosition(Position.line, Position.column + 1);
+            pos.UpdatePosition(Position.line + 1, Position.column + 1);
             while (Board.IsPositionValid(pos) && CanMove(pos))
             {
                 mat[pos.line, pos.column] = true;
@@ -104,7 +104,7 @@ namespace CSChess.ChessPieces
         }
         public override string ToString()
         {
-            return "Q";
+            return "D"; // pt-BR
         }
     }
 }

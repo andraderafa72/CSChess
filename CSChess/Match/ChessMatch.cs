@@ -2,12 +2,6 @@
 using CSChess.Board.Enums;
 using CSChess.ChessPieces;
 using CSChess.Exceptions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace CSChess.Match
 {
@@ -17,6 +11,9 @@ namespace CSChess.Match
         public int Turn { get; private set; }
         public Color CurrentPlayer { get; private set; }
         public bool IsFinished { get; set; }
+        public bool IsCheck { get; set; }
+        private HashSet<Piece> Pieces;
+        private HashSet<Piece> CapturedPieces;
 
         public ChessMatch()
         {
@@ -24,59 +21,137 @@ namespace CSChess.Match
             Turn = 1;
             CurrentPlayer = Color.White;
             IsFinished = false;
+            IsCheck = false;
+            Pieces = new HashSet<Piece>();
+            CapturedPieces = new HashSet<Piece>();
             InsertInitialPieces();
+        }
+
+        public void InsertNewPiece(char column, int line, Piece piece)
+        {
+            MatchBoard.InsertPiece(piece, new ChessPosition(column, line).ToPosition());
+            Pieces.Add(piece);
+        }
+        public void InsertNewPiece(int column, int line, Piece piece)
+        {
+            MatchBoard.InsertPiece(piece, new Position(line, column));
+            Pieces.Add(piece);
+        }
+
+        public HashSet<Piece> GetCapturedPieces(Color color)
+        {
+            HashSet<Piece> result = new HashSet<Piece>();
+            foreach (Piece piece in CapturedPieces)
+                if (piece.Color == color) result.Add(piece);
+
+            return result;
+        }
+
+        public HashSet<Piece> GetInGamePieces(Color color)
+        {
+            HashSet<Piece> result = new HashSet<Piece>();
+            foreach (Piece piece in Pieces)
+                if (piece.Color == color) result.Add(piece);
+
+            result.ExceptWith(GetCapturedPieces(color));
+            return result;
         }
 
         private void InsertInitialPieces()
         {
             // Black pieces
-            MatchBoard.InsertPiece(new King(Color.Black, MatchBoard), new Position(0, 3));
-            MatchBoard.InsertPiece(new Queen(Color.Black, MatchBoard), new Position(0, 4));
-            MatchBoard.InsertPiece(new Rook(Color.Black, MatchBoard), new Position(0, 0));
-            MatchBoard.InsertPiece(new Rook(Color.Black, MatchBoard), new Position(0, 7));
-            MatchBoard.InsertPiece(new Knight(Color.Black, MatchBoard), new Position(0, 1));
-            MatchBoard.InsertPiece(new Knight(Color.Black, MatchBoard), new Position(0, 6));
-            MatchBoard.InsertPiece(new Bishop(Color.Black, MatchBoard), new Position(0, 2));
-            MatchBoard.InsertPiece(new Bishop(Color.Black, MatchBoard), new Position(0, 5));
-
+            InsertNewPiece('a', 8, new Rook(Color.Black, MatchBoard));
+            InsertNewPiece('b', 8, new Knight(Color.Black, MatchBoard));
+            InsertNewPiece('c', 8, new Bishop(Color.Black, MatchBoard));
+            InsertNewPiece('d', 8, new King(Color.Black, MatchBoard));
+            InsertNewPiece('e', 8, new Queen(Color.Black, MatchBoard));
+            InsertNewPiece('f', 8, new Bishop(Color.Black, MatchBoard));
+            InsertNewPiece('g', 8, new Knight(Color.Black, MatchBoard));
+            InsertNewPiece('h', 8, new Rook(Color.Black, MatchBoard));
 
             for (int i = 0; i < 8; i++)
             {
-                MatchBoard.InsertPiece(new Pawn(Color.Black, MatchBoard), new Position(1, i));
+                InsertNewPiece(i, 1, new Pawn(Color.Black, MatchBoard));
             }
 
-            MatchBoard.InsertPiece(new King(Color.White, MatchBoard), new Position(7, 3));
-            MatchBoard.InsertPiece(new Queen(Color.White, MatchBoard), new Position(7, 4));
-            MatchBoard.InsertPiece(new Rook(Color.White, MatchBoard), new Position(7, 0));
-            MatchBoard.InsertPiece(new Rook(Color.White, MatchBoard), new Position(7, 7));
-            MatchBoard.InsertPiece(new Knight(Color.White, MatchBoard), new Position(7, 1));
-            MatchBoard.InsertPiece(new Knight(Color.White, MatchBoard), new Position(7, 6));
-            MatchBoard.InsertPiece(new Bishop(Color.White, MatchBoard), new Position(7, 2));
-            MatchBoard.InsertPiece(new Bishop(Color.White, MatchBoard), new Position(7, 5));
-
+            // WHITE PIECES
+            InsertNewPiece('a', 1, new Rook(Color.White, MatchBoard));
+            InsertNewPiece('b', 1, new Knight(Color.White, MatchBoard));
+            InsertNewPiece('c', 1, new Bishop(Color.White, MatchBoard));
+            InsertNewPiece('d', 1, new King(Color.White, MatchBoard));
+            InsertNewPiece('e', 1, new Queen(Color.White, MatchBoard));
+            InsertNewPiece('f', 1, new Bishop(Color.White, MatchBoard));
+            InsertNewPiece('g', 1, new Knight(Color.White, MatchBoard));
+            InsertNewPiece('h', 1, new Rook(Color.White, MatchBoard));
 
             for (int i = 0; i < 8; i++)
             {
-                MatchBoard.InsertPiece(new Pawn(Color.White, MatchBoard), new Position(6, i));
+                InsertNewPiece(i, 6, new Pawn(Color.White, MatchBoard));
             }
 
         }
 
-        public void MovePiece(Position origin, Position destiny)
+        private Piece MovePiece(Position origin, Position destiny)
         {
             Piece piece = MatchBoard.RemovePieceByPosition(origin) ?? throw new Exception($"Não há nenhuma peça do jogador {CurrentPlayer} nessa posição.");
-            if (piece.Color != CurrentPlayer) throw new Exception($"Essa peça não pertence ao jogador {CurrentPlayer}");
-            piece.IncrementMoves(); 
+            piece.IncrementMoves();
 
             Piece capturedPiece = MatchBoard.RemovePieceByPosition(destiny);
+            if (capturedPiece != null) CapturedPieces.Add(capturedPiece);
+
             MatchBoard.InsertPiece(piece, destiny);
 
-            ChangeTurn();
+
+            return capturedPiece;
+        }
+
+        public void UndoMove(Position origin, Position destiny, Piece capturedPiece)
+        {
+            Piece p = MatchBoard.RemovePieceByPosition(destiny);
+            MatchBoard.InsertPiece(p, origin);
+            if (capturedPiece != null)
+            {
+                MatchBoard.InsertPiece(capturedPiece, destiny);
+                CapturedPieces.Remove(capturedPiece);
+            }
+            p.DecrementMoves();
         }
 
         public void PerformMove(Position origin, Position destiny)
         {
-            MovePiece(origin, destiny);
+            Piece capturedPiece = MovePiece(origin, destiny);
+
+            if (IsPlayerOnCheck(CurrentPlayer))
+            {
+                UndoMove(origin, destiny, capturedPiece);
+                throw new BoardException("You can't get yourself in Check.");
+            }
+
+            if (IsPlayerOnCheck(Opponent(CurrentPlayer)))
+            {
+                IsCheck = true;
+            }
+            else
+            {
+                IsCheck = false;
+            }
+
+
+            if (capturedPiece != null && capturedPiece is King)
+            {
+                UndoMove(origin, destiny, capturedPiece);
+                throw new BoardException("You can't capture the king");
+            }
+
+            if (IsCheckmate(Opponent(CurrentPlayer)))
+            {
+                Console.WriteLine("CHECKMATE");
+                IsFinished = true;
+            }
+            else
+            {
+                ChangeTurn();
+            }
         }
 
         public Piece ValidateOriginPosition(Position origin)
@@ -94,10 +169,76 @@ namespace CSChess.Match
                 throw new BoardException("Invalid destiny position.");
         }
 
+        public bool IsPlayerOnCheck(Color color)
+        {
+            Piece king = King(color) ?? throw new BoardException("Where's the King???");
+
+            foreach (Piece piece in GetInGamePieces(Opponent(color)))
+            {
+                bool[,] mat = piece.AvailableMoves();
+
+                if (mat[king.Position.line, king.Position.column])
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public bool IsCheckmate(Color color)
+        {
+            if (!IsPlayerOnCheck(color)) return false;
+            foreach (Piece piece in GetInGamePieces(color))
+            {
+                bool[,] mat = piece.AvailableMoves();
+
+                for (int i = 0; i < MatchBoard.Lines; i++)
+                {
+                    for (int j = 0; j < MatchBoard.Columns; j++)
+                    {
+                        if (mat[i, j])
+                        {
+                            Position origin = piece.Position;
+                            Position destiny = new(i, j);
+                            Piece capturedPiece = MovePiece(origin, destiny);
+                            bool x = IsPlayerOnCheck(color);
+                            UndoMove(origin, destiny, capturedPiece);
+                            if (!x)
+                            {
+                                return false;
+                            }
+                        }
+                    }
+                }
+
+            }
+
+            return true;
+
+        }
         private void ChangeTurn()
         {
             Turn++;
             CurrentPlayer = CurrentPlayer == Color.White ? Color.Black : Color.White;
+        }
+
+        private Color Opponent(Color color)
+        {
+            return color == Color.White ? Color.Black : Color.White;
+        }
+
+        private Piece King(Color color)
+        {
+            foreach (Piece piece in GetInGamePieces(color))
+            {
+                if (piece is King)
+                {
+                    return piece;
+                }
+            }
+
+            return null;
         }
     }
 }

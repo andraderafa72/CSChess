@@ -13,38 +13,50 @@ namespace CSChess
             ChessMatch match = new();
 
 
-            Screen.PrintBoard(match.MatchBoard);
             while (!match.IsFinished)
             {
                 try
                 {
-                    Console.WriteLine("");
-                    Console.WriteLine($"Turn: {match.Turn}");
-                    Console.WriteLine($"Player: {match.CurrentPlayer}");
+                    Screen.PrintMatch(match);
                     Console.WriteLine("Posição de origem:");
                     Position origin = Screen.ReadChessPosition();
                     Piece SelectedPiece;
                     SelectedPiece = match.ValidateOriginPosition(origin);
 
-                    Screen.PrintBoard(match.MatchBoard, SelectedPiece.AvailableMoves());
-
+                    Console.Clear();
+                    Screen.PrintMatch(match, SelectedPiece.AvailableMoves());
+                    Console.WriteLine($"Posição de origem: {origin}");
                     Console.WriteLine("Posição de destino:");
                     Position destiny = Screen.ReadChessPosition();
                     match.ValidateDestinyPosition(origin, destiny);
 
-                    match.MovePiece(origin, destiny);
+                    match.PerformMove(origin, destiny);
 
                     Console.Clear();
-                    Screen.PrintBoard(match.MatchBoard);
                 }
                 catch (BoardException e)
                 {
                     Console.Clear();
-                    Screen.PrintBoard(match.MatchBoard);
+                    Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine(e.Message);
+                    Console.ResetColor();
+                    Console.WriteLine();
+                    continue;
+                }
+                catch (Exception e)
+                {
+                    //Console.Clear();
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine(e.Message);
+                    Console.ResetColor();
+                    Console.WriteLine();
                     continue;
                 }
             }
+
+            Console.Clear();
+            Screen.PrintMatch(match);
+
         }
     }
 }

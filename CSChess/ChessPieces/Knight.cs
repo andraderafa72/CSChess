@@ -19,30 +19,57 @@ namespace CSChess.ChessPieces
 
             Position pos = new Position(0, 0);
 
-            int lineAux = this.Color == Color.White ? -1 : 1;
-
-            // Move Foward
-            pos.UpdatePosition(Position.line + lineAux, Position.column);
+            // Move Up-Left
+            pos.UpdatePosition(Position.line - 2, Position.column - 1);
             if (Board.IsPositionValid(pos) && CanMove(pos))
             {
                 mat[pos.line, pos.column] = true;
             }
 
-            // Capture Piece Left
-            pos.UpdatePosition(Position.line + lineAux, Position.column - 1);
+            // Move Up-Right
+            pos.UpdatePosition(Position.line - 2, Position.column + 1);
             if (Board.IsPositionValid(pos) && CanMove(pos))
             {
                 mat[pos.line, pos.column] = true;
             }
 
-            // Capture Piece Right
-            pos.UpdatePosition(Position.line + lineAux, Position.column + 1);
+            // Move Left-Up
+            pos.UpdatePosition(Position.line - 1, Position.column - 2);
             if (Board.IsPositionValid(pos) && CanMove(pos))
             {
                 mat[pos.line, pos.column] = true;
             }
-            // Capture Piece Left
-            pos.UpdatePosition(Position.line + lineAux, Position.column - 1);
+
+            // Move Right-Up
+            pos.UpdatePosition(Position.line - 1, Position.column + 2);
+            if (Board.IsPositionValid(pos) && CanMove(pos))
+            {
+                mat[pos.line, pos.column] = true;
+            }
+
+            // Move Down-Left
+            pos.UpdatePosition(Position.line + 2, Position.column - 1);
+            if (Board.IsPositionValid(pos) && CanMove(pos))
+            {
+                mat[pos.line, pos.column] = true;
+            }
+
+            // Move Down-Right
+            pos.UpdatePosition(Position.line + 2, Position.column + 1);
+            if (Board.IsPositionValid(pos) && CanMove(pos))
+            {
+                mat[pos.line, pos.column] = true;
+            }
+
+            // Move Left-Down
+            pos.UpdatePosition(Position.line + 1, Position.column - 2);
+            if (Board.IsPositionValid(pos) && CanMove(pos))
+            {
+                mat[pos.line, pos.column] = true;
+            }
+
+            // Move Right-Down
+            pos.UpdatePosition(Position.line + 1, Position.column + 2);
             if (Board.IsPositionValid(pos) && CanMove(pos))
             {
                 mat[pos.line, pos.column] = true;
