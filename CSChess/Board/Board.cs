@@ -57,7 +57,12 @@ namespace CSChess.Board
 
         public bool IsPositionValid(Position pos)
         {
-            return pos.line <= 8 && pos.column <= 8 && pos.column >= 0 && pos.line >= 0;
+            bool IsLineValid = pos.line < Lines && pos.line >= 0;
+            if (!IsLineValid) return false;
+            bool IsColumnValid = pos.column < Columns && pos.column >= 0;
+            if (!IsColumnValid) return false;
+
+            return true;
         }
 
         public void ValidatePosition(Position pos)

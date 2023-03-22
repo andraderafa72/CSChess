@@ -19,7 +19,11 @@ namespace CSChess.Board
 
         public Position ToPosition()
         {
-            return new(8 - line, column - 'a');
+            int posLine, posColumn;
+            posLine = 8 - line;
+            posColumn = column - 'a';
+
+            return new Position(posLine, posColumn);
         }
 
         public override string ToString()

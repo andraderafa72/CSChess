@@ -1,10 +1,12 @@
 ﻿using CSChess.Board;
 using CSChess.Board.Enums;
 using CSChess.ChessPieces;
+using CSChess.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace CSChess.Match
@@ -12,7 +14,7 @@ namespace CSChess.Match
     internal class ChessMatch
     {
         public ChessBoard MatchBoard { get; private set; }
-        private int Turn;
+        public int Turn { get; private set; }
         public Color CurrentPlayer { get; private set; }
         public bool IsFinished { get; set; }
 
@@ -70,6 +72,26 @@ namespace CSChess.Match
             MatchBoard.InsertPiece(piece, destiny);
 
             ChangeTurn();
+        }
+
+        public void PerformMove(Position origin, Position destiny)
+        {
+            MovePiece(origin, destiny);
+        }
+
+        public Piece ValidateOriginPosition(Position origin)
+        {
+            Piece p = MatchBoard.GetPieceByPosition(origin);
+            if (p == null) throw new BoardException("Invalid origin position.");
+            if (!p.HasAvailableMoves()) throw new BoardException("This piece has no available moves.");
+            if (p.Color != CurrentPlayer) throw new BoardException("That's not your piece.");
+            return p;
+        }
+
+        public void ValidateDestinyPosition(Position origin, Position destiny)
+        {
+            if (!MatchBoard.GetPieceByPosition(origin).CanMoveTo(destiny))
+                throw new BoardException("Invalid destiny position.");
         }
 
         private void ChangeTurn()
