@@ -12,6 +12,7 @@ namespace CSChess.Match
         public Color CurrentPlayer { get; private set; }
         public bool IsFinished { get; set; }
         public bool IsCheck { get; set; }
+        public Piece? VulnerableEnPassant { get; private set; }
         private HashSet<Piece> Pieces;
         private HashSet<Piece> CapturedPieces;
 
@@ -22,6 +23,7 @@ namespace CSChess.Match
             CurrentPlayer = Color.White;
             IsFinished = false;
             IsCheck = false;
+            VulnerableEnPassant = null;
             Pieces = new HashSet<Piece>();
             CapturedPieces = new HashSet<Piece>();
             InsertInitialPieces();
@@ -61,9 +63,9 @@ namespace CSChess.Match
         {
             // Black pieces
             InsertNewPiece('a', 8, new Rook(Color.Black, MatchBoard));
-            //InsertNewPiece('b', 8, new Knight(Color.Black, MatchBoard));
-            //InsertNewPiece('c', 8, new Bishop(Color.Black, MatchBoard));
-            //InsertNewPiece('d', 8, new Queen(Color.Black, MatchBoard));
+            InsertNewPiece('b', 8, new Knight(Color.Black, MatchBoard));
+            InsertNewPiece('c', 8, new Bishop(Color.Black, MatchBoard));
+            InsertNewPiece('d', 8, new Queen(Color.Black, MatchBoard));
             InsertNewPiece('e', 8, new King(Color.Black, MatchBoard, this));
             InsertNewPiece('f', 8, new Bishop(Color.Black, MatchBoard));
             InsertNewPiece('g', 8, new Knight(Color.Black, MatchBoard));
@@ -71,7 +73,7 @@ namespace CSChess.Match
 
             for (int i = 0; i < 8; i++)
             {
-                InsertNewPiece(i, 1, new Pawn(Color.Black, MatchBoard));
+                InsertNewPiece(i, 1, new Pawn(Color.Black, MatchBoard, this));
             }
 
             // WHITE PIECES
@@ -80,13 +82,13 @@ namespace CSChess.Match
             InsertNewPiece('c', 1, new Bishop(Color.White, MatchBoard));
             InsertNewPiece('d', 1, new Queen(Color.White, MatchBoard));
             InsertNewPiece('e', 1, new King(Color.White, MatchBoard, this));
-            //InsertNewPiece('f', 1, new Bishop(Color.White, MatchBoard));
-            //InsertNewPiece('g', 1, new Knight(Color.White, MatchBoard));
+            InsertNewPiece('f', 1, new Bishop(Color.White, MatchBoard));
+            InsertNewPiece('g', 1, new Knight(Color.White, MatchBoard));
             InsertNewPiece('h', 1, new Rook(Color.White, MatchBoard));
 
             for (int i = 0; i < 8; i++)
             {
-                InsertNewPiece(i, 6, new Pawn(Color.White, MatchBoard));
+                InsertNewPiece(i, 6, new Pawn(Color.White, MatchBoard, this));
             }
 
         }
@@ -102,7 +104,8 @@ namespace CSChess.Match
             MatchBoard.InsertPiece(piece, destiny);
 
             // Castle Kingside
-            if(piece is King && destiny.column == origin.column + 2) {
+            if (piece is King && destiny.column == origin.column + 2)
+            {
                 Position rookOrigin = new Position(origin.line, origin.column + 3);
                 Position rookDestiny = new Position(origin.line, origin.column + 1);
                 Piece rook = MatchBoard.RemovePieceByPosition(rookOrigin);
@@ -121,6 +124,16 @@ namespace CSChess.Match
                 MatchBoard.InsertPiece(rook, rookDestiny);
             }
 
+            // En Passant
+            if (piece is Pawn && destiny.column != origin.column && capturedPiece == null)
+            {
+                capturedPiece = piece.Color == Color.White
+                    ? MatchBoard.RemovePieceByPosition(new Position(destiny.line + 1, destiny.column))
+                    : MatchBoard.RemovePieceByPosition(new Position(destiny.line - 1, destiny.column));
+
+                CapturedPieces.Add(capturedPiece);
+            }
+
             return capturedPiece;
         }
 
@@ -135,7 +148,8 @@ namespace CSChess.Match
             }
 
             // Castle Kingside
-            if (p is King && destiny.column == origin.column + 2) {
+            if (p is King && destiny.column == origin.column + 2)
+            {
                 Position rookOrigin = new Position(origin.line, origin.column + 3);
                 Position rookDestiny = new Position(origin.line, origin.column + 1);
                 Piece rook = MatchBoard.RemovePieceByPosition(rookDestiny);
@@ -153,12 +167,23 @@ namespace CSChess.Match
                 MatchBoard.InsertPiece(rook, rookDestiny);
             }
 
+            // En Passant
+            if (p is Pawn && destiny.column != origin.column && capturedPiece == VulnerableEnPassant)
+            {
+                Piece pawn = MatchBoard.RemovePieceByPosition(destiny);
+                Position posP = p.Color == Color.White
+                    ? new Position(3, destiny.column)
+                    : new Position(4, destiny.column);
+
+                MatchBoard.InsertPiece(pawn, posP);
+            }
             p.DecrementMoves();
         }
 
         public void PerformMove(Position origin, Position destiny)
         {
             Piece capturedPiece = MovePiece(origin, destiny);
+            Piece movedPiece = MatchBoard.GetPieceByPosition(destiny);
 
             if (IsPlayerOnCheck(CurrentPlayer))
             {
@@ -190,6 +215,30 @@ namespace CSChess.Match
             else
             {
                 ChangeTurn();
+            }
+
+            // En passant
+            if (movedPiece is Pawn && (destiny.line == origin.line - 2 || destiny.line == origin.line + 2))
+            {
+                VulnerableEnPassant = movedPiece;
+            }
+            else
+            {
+                VulnerableEnPassant = null;
+            }
+
+            // Promotion
+            if (
+                movedPiece is Pawn
+                && ((movedPiece.Color == Color.White && movedPiece.Position.line == 0)
+                || (movedPiece.Color == Color.White && movedPiece.Position.line == 7))
+                )
+            {
+                movedPiece = MatchBoard.RemovePieceByPosition(destiny);
+                Pieces.Remove(movedPiece);
+                Piece queen = new Queen(movedPiece.Color, MatchBoard);
+                MatchBoard.InsertPiece(queen, destiny);
+                Pieces.Add(queen);
             }
         }
 

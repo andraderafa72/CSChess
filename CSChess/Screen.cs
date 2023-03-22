@@ -10,7 +10,9 @@ namespace CSChess
         {
             for (int i = 0; i < 8; i++)
             {
+                Console.ForegroundColor = ConsoleColor.Red;
                 Console.Write((8 - i) + "|");
+                Console.ResetColor();
                 for (int j = 0; j < 8; j++)
                 {
                     Piece piece = board.GetPieceByPosition(i, j);
@@ -26,15 +28,19 @@ namespace CSChess
                 }
                 Console.WriteLine("");
             }
+            Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine("   ______________________");
             Console.WriteLine("   a  b  c  d  e  f  g  h ");
+            Console.ResetColor();
         }
 
         public static void PrintBoard(ChessBoard board, bool[,] availableMoves)
         {
             for (int i = 0; i < 8; i++)
             {
+                Console.ForegroundColor = ConsoleColor.Red;
                 Console.Write((8 - i) + "|");
+                Console.ResetColor();
                 for (int j = 0; j < 8; j++)
                 {
                     Piece piece = board.GetPieceByPosition(i, j);
@@ -42,8 +48,10 @@ namespace CSChess
                 }
                 Console.WriteLine("");
             }
+            Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine("   ______________________");
             Console.WriteLine("   a  b  c  d  e  f  g  h ");
+            Console.ResetColor();
         }
 
         public static void PrintPiece(Piece piece)
@@ -108,7 +116,7 @@ namespace CSChess
         {
             Console.BackgroundColor = ConsoleColor.White;
             Console.ForegroundColor = ConsoleColor.Black;
-            Console.WriteLine(" Peças capturadas");
+            Console.WriteLine(" Peças capturadas ");
             Console.ResetColor();
             Console.Write(" Brancas: ");
             PrintSet(match.GetCapturedPieces(Color.White));
